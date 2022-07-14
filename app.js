@@ -9,6 +9,8 @@ mongoose.connect('mongodb://localhost:27017/blogs', {
     useNewUrlParser: true
 });
 
+app.use(express.json());
+
 app.use('/', router);
 
 app.get('/', (req, res) => {
