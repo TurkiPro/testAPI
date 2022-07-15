@@ -1,4 +1,4 @@
-const post = require("../models/post");
+let post = require("../models/post");
 
 module.exports = {
     index: (req, res) => {
@@ -28,7 +28,7 @@ module.exports = {
             userId: req.body.userId
         }
         post.findByIdAndUpdate(postId, { $set: postInfo })
-            .then(post => {
+            .then(() => {
                 res.json({ message: "post has been updated" })
 
             })
@@ -45,5 +45,18 @@ module.exports = {
             .catch(error => {
                 res.json({ error: error })
             })
+    },
+    create: (req, res) => {
+        let Post = new post({
+            title: req.body.title,
+            text: req.body.text,
+            userId: req.body.userId
+        })
+        Post.save((error) => {
+            if (error)
+                res.json({ error: error })
+            else
+                res.json({ message: "Post created!" })
+        })
     }
 }
