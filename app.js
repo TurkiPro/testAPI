@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const user = require("./models/user");
+const User = require("./models/user");
+
 
 
 app = express();
@@ -11,6 +12,7 @@ const router = require('./routes/index');
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/blogs', {
+    useUnifiedTopology: true,
     useNewUrlParser: true
 });
 
@@ -24,12 +26,12 @@ app.use(expressSession({
     cookie: { maxAge: 6000 }
 }));
 
-app.use(passport.initialize);
+app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(user.createStrategy());
-passport.serializeUser(user.serializeUser);
-passport.deserializeUser(user.deserializeUser);
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser);
+passport.deserializeUser(User.deserializeUser);
 
 app.use('/', router);
 

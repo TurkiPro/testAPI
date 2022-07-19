@@ -1,8 +1,9 @@
-const user = require("../models/user");
+const passport = require("passport");
+const User = require("../models/user");
 
 module.exports = {
     index: (req, res) => {
-        user.find({})
+        User.find({})
             .then(users => {
                 res.json(users)
             })
@@ -12,7 +13,7 @@ module.exports = {
     },
     show: (req, res) => {
         let userId = req.params.userId;
-        user.findById(userId)
+        User.findById(userId)
             .then(user => {
                 res.json({ user })
             })
@@ -27,8 +28,8 @@ module.exports = {
             age: req.body.age,
             email: req.body.email
         }
-        user.findByIdAndUpdate(userId, { $set: userInfo })
-            .then(user => {
+        User.findByIdAndUpdate(userId, { $set: userInfo })
+            .then(User => {
                 res.json({ message: "User info has been updated" })
 
             })
@@ -38,7 +39,7 @@ module.exports = {
     },
     delete: (req, res) => {
         let userId = req.params.userId
-        user.findByIdAndRemove(userId)
+        User.findByIdAndRemove(userId)
             .then(() => {
                 res.json({ message: "User is deleted" })
             })
@@ -47,19 +48,37 @@ module.exports = {
             })
     },
     create: (req, res) => {
-        let newUser = new user({
+        let newUser = new User({
             name: req.body.name,
             age: req.body.age,
             email: req.body.email
         })
-        user.register(newUser, req.body.pass, (error, user) => {
+        User.register(newUser, req.body.password, (error, user) => {
             if (user) {
                 res.json({ message: "New user created!" })
             } else {
                 res.json({ error: error })
             }
         })
-
-
+    },
+    authenticate: (req, res) => {
+        passport.authenticate('local', (error, user) => {
+            if (user) {
+                let signedToken = jsonWeb.sign({
+                    data: user._id,
+                    exp: new Date().setDate(new Date().getDate() + 1)
+                }, 'Turki767')
+                res.json({
+                    success: true,
+                    token: signedToken
+                })
+            }
+            else {
+                res.json({
+                    success: false,
+                    message: 'Could not authenticate user'
+                })
+            }
+        })
     }
 }
