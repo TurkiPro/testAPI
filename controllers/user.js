@@ -1,3 +1,4 @@
+const { json } = require("express");
 const passport = require("passport");
 const User = require("../models/user");
 
@@ -61,24 +62,48 @@ module.exports = {
             }
         })
     },
-    authenticate: (req, res) => {
+    authenticate: (req, res, next) => {
         passport.authenticate('local', (error, user) => {
             if (user) {
-                let signedToken = jsonWeb.sign({
+                let signedToken = jsonWebToken.sign({
                     data: user._id,
                     exp: new Date().setDate(new Date().getDate() + 1)
                 }, 'Lacorbi86')
                 res.json({
                     success: true,
                     token: signedToken
-                })
+                });
             }
             else {
                 res.json({
                     success: false,
                     message: 'Could not authenticate user'
-                })
+                });
             }
-        })
+        })(req, res, next);
+    },
+    verifyJWT: (req, res, next) => {
+        let token = req.body.token
+        if (token) {
+            jsonWebToken.verify(token, 'Lacorbi86', (errors, payload) => {
+                if (payload) {
+                    User.findById(payload.data).then(user => {
+                        if (user) {
+                            next()
+                        }
+                        else {
+                            json.send({ error: error })
+                        }
+                    })
+                }
+                else {
+                    res.json({ message: "No user account found", error: true })
+                }
+            })
+            next()
+        }
+        else {
+            res.json({ error: "Please provide a token" })
+        }
     }
 }
