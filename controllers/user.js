@@ -67,7 +67,7 @@ module.exports = {
                 let signedToken = jsonWeb.sign({
                     data: user._id,
                     exp: new Date().setDate(new Date().getDate() + 1)
-                }, 'Turki767')
+                }, 'Lacorbi86')
                 res.json({
                     success: true,
                     token: signedToken
